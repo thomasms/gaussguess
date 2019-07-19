@@ -17,6 +17,18 @@ class Generator(object):
         assert len(self.binedges) == (self.nbins + 1)
         self.binwidth = (self.binedges[-1] - self.binedges[-2])
 
+    @property
+    def limits(self):
+        return min(self.binedges), max(self.binedges)
+
+    def sample(self, nentries=10000):
+        self._raw = np.ones(nentries)*0.1
+        self.values, _ = np.histogram(self._raw, self.binedges)
+        # normalise values between [0,1]
+        self.values = self.values/max(self.values)
+
+        return self
+
 class GaussGenerator(Generator):
     def __init__(self, *args, sigma=0.1, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,10 +44,6 @@ class GaussGenerator(Generator):
         self.values = self.values/max(self.values)
 
         return self
-
-    @property
-    def limits(self):
-        return min(self.binedges), max(self.binedges)
 
     @property
     def analytical(self):
