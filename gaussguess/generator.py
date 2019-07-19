@@ -59,5 +59,5 @@ def hist_plot(generator):
     plt.ylabel("count / {:.3e}".format(generator.binwidth))
     plt.title("nbins={}, sigma={:.2f}".format(generator.nbins, generator.sigma))
 
-    return f
+    return plt
 
