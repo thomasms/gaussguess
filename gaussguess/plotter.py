@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-def hist_plot(generator):
+def getplotxy(generator):
     # plot data to look like hist but actuall line plot
     x = []
     y = []
@@ -10,6 +10,12 @@ def hist_plot(generator):
         y.append(generator.values[i])
         x.append(generator.binedges[i+1])
         y.append(generator.values[i])
+
+    return x, y
+
+def histplot(generator):
+    # plot data to look like hist but actuall line plot
+    x, y = getplotxy(generator)
 
     f = plt.figure()
     plt.plot(x, y, 'k', alpha=0.6)
