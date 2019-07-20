@@ -13,7 +13,7 @@ gen = gg.GaussGenerator(3, sigma=sigma).sample(nentries=stats)
 x, y = gg.getplotxy(gen)
 lims = gen.limits
 
-line, = ax.plot(x, y)
+line, = ax.plot(x, y, 'k', alpha=0.6)
 
 def animate(i):
     gen = gg.GaussGenerator((2*i) + 1, sigma=sigma).sample(nentries=stats)
@@ -27,4 +27,7 @@ ani = animation.FuncAnimation(fig, animate, np.arange(0, 100),
 
 plt.xlim(lims)
 plt.ylabel("count / {:.3e}".format(gen.binwidth))
+plt.title("Increasing number of bins")
+# ani.save('animate.gif', writer='imagemagick', fps=10)
+
 plt.show()
