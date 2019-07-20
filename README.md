@@ -10,8 +10,8 @@ Here is a sample.
 
 
 Changing the number of bins
-![Alt Text](https://github.com/thomasms/gaussguess/blob/master/examples/figures/animation1.gif)
+![Alt Text](https://github.com/thomasms/gaussguess/blob/master/examples/figures/animate.gif)
 
 
 Changing the statistics
-![Alt Text](https://github.com/thomasms/gaussguess/blob/master/examples/figures/animation2.gif)
+![Alt Text](https://github.com/thomasms/gaussguess/blob/master/examples/figures/animate2.gif)
