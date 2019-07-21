@@ -1,8 +1,11 @@
 import math
+import copy
 import numpy as np
 
+from .exceptions import NotImplementedException
 
-class Generator(object):
+
+class Distribution(object):
     def __init__(self, nbins, *args, **kwargs):
         """
            nbins must be odd!
@@ -17,19 +20,50 @@ class Generator(object):
         assert len(self.binedges) == (self.nbins + 1)
         self.binwidth = (self.binedges[-1] - self.binedges[-2])
 
+    def __add__(self, rhs):
+        dist = Distribution(self.nbins)
+        dist._raw = np.concatenate([self._raw, rhs._raw])
+        dist.values = self.values + rhs.values
+        # normalise values between [0,1]
+        dist.values = dist.values/max(dist.values)
+        return dist
+
+    def __sub__(self, rhs):
+        return self + -rhs
+
+    def __mul__(self, scalar):
+        dist = copy.deepcopy(self)
+        dist.values *= scalar
+        return dist
+
+    __rmul__ = __mul__
+
     @property
     def limits(self):
         return min(self.binedges), max(self.binedges)
 
     def sample(self, nentries=10000):
-        self._raw = np.ones(nentries)*0.1
+        raise NotImplementedException("Distribution base class cannot be sampled from.")
+
+
+class FlatDistribution(Distribution):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def sample(self, nentries=10000):
+        self._raw = np.random.rand(nentries) - 0.5
         self.values, _ = np.histogram(self._raw, self.binedges)
+
         # normalise values between [0,1]
         self.values = self.values/max(self.values)
 
         return self
 
-class GaussGenerator(Generator):
+    @property
+    def analytical(self):
+        return self.binedges, np.ones(len(self.binedges))
+
+class GaussDistribution(Distribution):
     def __init__(self, *args, sigma=0.1, **kwargs):
         super().__init__(*args, **kwargs)
         # centre around 0

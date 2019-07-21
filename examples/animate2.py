@@ -9,7 +9,7 @@ nbins = 111
 sigma = 0.1
 fig, ax = plt.subplots()
 
-gen = gg.GaussGenerator(nbins, sigma=sigma).sample(nentries=10)
+gen = gg.GaussDistribution(nbins, sigma=sigma).sample(nentries=10)
 x, y = gg.getplotxy(gen)
 lims = gen.limits
 
@@ -18,7 +18,7 @@ line, = ax.plot(x, y, 'k', alpha=0.6)
 lastsize = 1
 def animate(i):
     global lastsize
-    gen = gg.GaussGenerator(nbins, sigma=sigma).sample(nentries=lastsize)
+    gen = gg.GaussDistribution(nbins, sigma=sigma).sample(nentries=lastsize)
     x, y = gg.getplotxy(gen)
     line.set_xdata(x)  # update the data
     line.set_ydata(y)  # update the data

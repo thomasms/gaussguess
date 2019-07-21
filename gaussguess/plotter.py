@@ -19,9 +19,10 @@ def histplot(generator):
 
     f = plt.figure()
     plt.plot(x, y, 'k', alpha=0.6)
-    plt.plot(*generator.analytical, 'r', alpha=0.4)
+    # plt.plot(*generator.analytical, 'r', alpha=0.4)
     plt.xlim(generator.limits)
+    plt.ylim([0,1.05])
     plt.ylabel("count / {:.3e}".format(generator.binwidth))
-    plt.title("nbins={}, sigma={:.2f}".format(generator.nbins, generator.sigma))
+    plt.title("nbins={}".format(generator.nbins))
 
     return plt
