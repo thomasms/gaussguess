@@ -23,7 +23,8 @@ class Distribution(object):
     def __add__(self, rhs):
         dist = Distribution(self.nbins)
         dist._raw = np.concatenate([self._raw, rhs._raw])
-        dist.values = self.values + rhs.values
+        # dist.values = self.values + rhs.values
+        dist.values, _ = np.histogram(dist._raw, dist.binedges)
         # normalise values between [0,1]
         dist.values = dist.values/max(dist.values)
         return dist
@@ -33,7 +34,8 @@ class Distribution(object):
 
     def __mul__(self, scalar):
         dist = copy.deepcopy(self)
-        dist.values *= scalar
+        dist._raw = np.repeat(dist._raw, scalar)
+        dist.values, _ = np.histogram(dist._raw, dist.binedges)
         return dist
 
     __rmul__ = __mul__

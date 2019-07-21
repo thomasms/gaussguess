@@ -1,8 +1,10 @@
 import gaussguess as gg
 
-signal = gg.GaussDistribution(9, sigma=0.1).sample(nentries=10000)
-noise = gg.FlatDistribution(9).sample(nentries=200000)
-measured = signal + 0.3*noise
+stats = 10000
+sn_ratio = 100
+signal = gg.GaussDistribution(9, sigma=0.1).sample(nentries=stats)
+noise = gg.FlatDistribution(9).sample(nentries=10)
+measured = signal + (stats/sn_ratio)*noise
 # print(gen.values)
 gg.histplot(signal).show()
 gg.histplot(noise).show()
