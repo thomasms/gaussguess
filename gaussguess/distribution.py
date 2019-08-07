@@ -16,7 +16,9 @@ class Distribution(object):
         self.nbins = nbins
 
         # always keep xrange between [-0.5, 0.5]
-        self.binedges = np.linspace(-0.5, 0.5, num=self.nbins+1, endpoint=True)
+        self.xlim = [-0.5, 0.5]
+
+        self.binedges = np.linspace(self.xlim[0], self.xlim[1], num=self.nbins+1, endpoint=True)
         assert len(self.binedges) == (self.nbins + 1)
         self.binwidth = (self.binedges[-1] - self.binedges[-2])
 
@@ -47,13 +49,31 @@ class Distribution(object):
     def sample(self, nentries=10000):
         raise NotImplementedException("Distribution base class cannot be sampled from.")
 
-
-class FlatDistribution(Distribution):
+class UniformDistribution(Distribution):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def sample(self, nentries=10000):
-        self._raw = np.random.rand(nentries) - 0.5
+        self._raw = np.random.uniform(self.xlim[0], self.xlim[1], nentries)
+        self.values, _ = np.histogram(self._raw, self.binedges)
+
+        # normalise values between [0,1]
+        self.values = self.values/max(self.values)
+
+        return self
+
+    @property
+    def analytical(self):
+        return self.binedges, np.ones(len(self.binedges))
+
+class TriangularDistribution(Distribution):
+    def __init__(self, *args, center=0.0, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.center = center
+
+    def sample(self, nentries=10000):
+        self._raw = np.random.triangular(self.xlim[0], self.center, self.xlim[1], nentries)
         self.values, _ = np.histogram(self._raw, self.binedges)
 
         # normalise values between [0,1]
