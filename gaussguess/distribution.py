@@ -17,6 +17,7 @@ class Distribution(object):
 
         # always keep xrange between [0, 1] by default
         self.xlim = xlim
+        self.center = (xlim[0] + xlim[1])/2.0
 
         self.binedges = np.linspace(self.xlim[0], self.xlim[1], num=self.nbins+1, endpoint=True)
         assert len(self.binedges) == (self.nbins + 1)
@@ -104,11 +105,32 @@ class PoissonDistribution(Distribution):
     def analytical(self):
         return self.binedges, np.ones(len(self.binedges))
 
+
+class LaplaceDistribution(Distribution):
+    def __init__(self, *args, lam=0.0, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.lam = lam
+
+    def sample(self, nentries=10000):
+        self._raw = np.random.laplace(self.center, self.lam, nentries)
+        self.values, _ = np.histogram(self._raw, self.binedges)
+
+        # normalise values between [0,1]
+        self.values = self.values/max(self.values)
+
+        return self
+
+    @property
+    def analytical(self):
+        return self.binedges, np.ones(len(self.binedges))
+
+
 class GaussDistribution(Distribution):
     def __init__(self, *args, sigma=0.1, **kwargs):
         super().__init__(*args, **kwargs)
         # centre around middle of range
-        self.__mu = (self.xlim[0] + self.xlim[1])/2.0
+        self.__mu = self.center
         self.sigma = sigma
 
     def sample(self, nentries=10000):

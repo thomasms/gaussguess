@@ -7,6 +7,8 @@ dists = [
     gg.GaussDistribution(nbins, sigma=0.1),
     gg.GaussDistribution(nbins, sigma=1.0),
     gg.GaussDistribution(nbins, sigma=2.0, xlim=[0, 10]),
+    gg.LaplaceDistribution(nbins, lam=0.1),
+    gg.LaplaceDistribution(nbins, lam=1.2),
     gg.UniformDistribution(nbins),
     gg.UniformDistribution(3),
     gg.TriangularDistribution(nbins),
