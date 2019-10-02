@@ -1,7 +1,8 @@
 import gaussguess as gg
+import gaussguess.plotter as plotter
 
 nbins = 11
-stats = 100000
+stats = 1000
 
 dists = [
     gg.GaussDistribution(nbins, sigma=0.1),
@@ -20,4 +21,4 @@ dists = [
 
 for d in dists:
     result = d.sample(nentries=stats)
-    gg.histplot(result).show()
+    plotter.histplot(result).show()

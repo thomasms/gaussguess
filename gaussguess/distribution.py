@@ -29,7 +29,7 @@ class Distribution(object):
         # dist.values = self.values + rhs.values
         dist.values, _ = np.histogram(dist._raw, dist.binedges)
         # normalise values between [0,1]
-        dist.values = dist.values/max(dist.values)
+        # dist.values = dist.values/max(dist.values)
         return dist
 
     def __sub__(self, rhs):
@@ -59,7 +59,7 @@ class UniformDistribution(Distribution):
         self.values, _ = np.histogram(self._raw, self.binedges)
 
         # normalise values between [0,1]
-        self.values = self.values/max(self.values)
+        # self.values = self.values/max(self.values)
 
         return self
 
@@ -78,7 +78,7 @@ class TriangularDistribution(Distribution):
         self.values, _ = np.histogram(self._raw, self.binedges)
 
         # normalise values between [0,1]
-        self.values = self.values/max(self.values)
+        # self.values = self.values/max(self.values)
 
         return self
 
@@ -97,7 +97,7 @@ class PoissonDistribution(Distribution):
         self.values, _ = np.histogram(self._raw, self.binedges)
 
         # normalise values between [0,1]
-        self.values = self.values/max(self.values)
+        # self.values = self.values/max(self.values)
 
         return self
 
@@ -117,7 +117,7 @@ class LaplaceDistribution(Distribution):
         self.values, _ = np.histogram(self._raw, self.binedges)
 
         # normalise values between [0,1]
-        self.values = self.values/max(self.values)
+        # self.values = self.values/max(self.values)
 
         return self
 
@@ -127,10 +127,12 @@ class LaplaceDistribution(Distribution):
 
 
 class GaussDistribution(Distribution):
-    def __init__(self, *args, sigma=0.1, **kwargs):
+    def __init__(self, *args, mu=None, sigma=0.1, **kwargs):
         super().__init__(*args, **kwargs)
         # centre around middle of range
         self.__mu = self.center
+        if mu:
+            self.__mu = mu
         self.sigma = sigma
 
     def sample(self, nentries=10000):
@@ -138,7 +140,7 @@ class GaussDistribution(Distribution):
         self.values, _ = np.histogram(self._raw, self.binedges)
 
         # normalise values between [0,1]
-        self.values = self.values/max(self.values)
+        # self.values = self.values/max(self.values)
 
         return self
 
