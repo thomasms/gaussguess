@@ -3,15 +3,19 @@ from setuptools import setup
 
 setup(name='gaussguess',
       version='0.0.1',
-      description='The package for generating gaussian distributions.',
+      description='The package for generating and classifying gaussian distributions.',
       url='https://github.com/thomasms/gaussguess',
-      author='UKAEA',
+      author='Thomas Stainer',
       author_email='stainer.tom@gmail.com',
-      license='Apache License 2.0',
+      license='BSD 3-Clause',
       packages=[
             'gaussguess',
       ],
-      install_requires=[],
+      install_requires=[
+            'numpy',
+            'tensorflow',
+            'keras',
+      ],
       python_requires='>=3',
       scripts=[
       ],
