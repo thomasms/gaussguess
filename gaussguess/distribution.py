@@ -50,6 +50,10 @@ class Distribution(object):
     def sample(self, nentries=10000):
         raise NotImplementedException("Distribution base class cannot be sampled from.")
 
+    def normalise(self, op=lambda x: x/sum(x)):
+        self.values = op(self.values)
+        return self
+
 class UniformDistribution(Distribution):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

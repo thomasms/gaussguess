@@ -19,25 +19,20 @@ class LossAndAccuracyCallback(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.epochs.append(epoch)
         self.loss.append(logs['loss'])
-        self.accuracy.append(logs['accuracy'])
+        self.accuracy.append(logs['acc'])
 
-class Classifier(object):
+class DistributionClassifier(object):
     """
-        Use a simple NN to identify gaussians
+        Use a simple NN to identify a distribution
+        Either it is a signal distribution (Gaussian) 
+        or background (not Gaussian).
+
+        The final layer has size 2 [prob_of_back_dist, prob_of_signal_dist]
     """
     def __init__(self, nbins):
         self._nbins = nbins
 
-        self._model = keras.models.Sequential([
-            keras.layers.Flatten(input_shape=(nbins,)),
-            keras.layers.Dense(128, activation=tf.nn.relu),
-            keras.layers.Dense(128, activation=tf.nn.relu),
-            keras.layers.Dense(2, activation=tf.nn.softmax)
-        ])
-
-        self._model.compile(optimizer='adam', 
-            loss='sparse_categorical_crossentropy',
-            metrics=['accuracy'])
+        self._model = None
 
         self.test_labels = None
         self.test_data = None
@@ -61,47 +56,7 @@ class Classifier(object):
 
     def generatedata(self, signaldistributions, backdistributions, nloops=1000, 
         statsrange=[10, 1000], trainingratio=0.9):
-        """
-            Set the training and test data here.
-
-            Does equal number of signal and background distributions.
-
-            Randomly samples from list of each distribution.
-
-
-
-            distributions must be a list of type Distribution.
-        """
-
-        # list of data + labels
-        data = []
-        # signal
-        for _ in range(nloops):
-            distindx = random.randrange(0, len(signaldistributions))
-            nentries = random.randrange(statsrange[0], statsrange[1])
-            signaldistributions[distindx].sample(nentries=nentries)
-            data.append((signaldistributions[distindx].values, 1))
-
-        # background
-        for _ in range(nloops):
-            distindx = random.randrange(0, len(backdistributions))
-            nentries = random.randrange(statsrange[0], statsrange[1])
-            backdistributions[distindx].sample(nentries=nentries)
-            data.append((backdistributions[distindx].values, 0))
-        
-        # shuffle data
-        random.shuffle(data)
-
-        # split based on trainingratio
-        ntraining = math.floor(len(data)*trainingratio)
-        ntest = len(data) - ntraining
-
-        self.test_labels = np.array([l for _, l in data[:ntest]])
-        self.test_data = np.array([d for d, _ in data[:ntest]])
-
-        self.training_labels = np.array([l for _, l in data[ntest:]])
-        self.training_data = np.array([d for d, _ in data[ntest:]])
-        return self
+        pass
 
     def train(self, epochs=10, callbacks=None):
         cb = callbacks
@@ -115,9 +70,129 @@ class Classifier(object):
 
     def predict(self, distribution):
         """
-            Expects an array of values of size equal to nbins
+            Expects a distribution of type Distribution
         """
-        values = distribution.values
+        values = distribution.normalise().values
         assert len(values) == self._nbins
         return self._model.predict(values.reshape((1, self._nbins)))[0]
         
+
+class DistributionBinaryClassifier(DistributionClassifier):
+    """
+        Use a simple NN to identify a distribution
+        Either it is a signal distribution (Gaussian) 
+        or background (not Gaussian).
+
+        The final layer has size 2 [prob_of_back_dist, prob_of_signal_dist]
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._model = keras.models.Sequential([
+            keras.layers.Flatten(input_shape=(self._nbins,)),
+            keras.layers.Dense(1024, activation=tf.nn.relu),
+            keras.layers.Dense(1024, activation=tf.nn.relu),
+            keras.layers.Dense(2, activation=tf.nn.softmax)
+        ])
+
+        self._model.compile(optimizer='adam', 
+            loss='sparse_categorical_crossentropy',
+            metrics=['accuracy'])
+
+    def generatedata(self, signaldistributions, backdistributions, nloops=1000, 
+        statsrange=[10, 1000], trainingratio=0.9, normfunc=lambda x: x/sum(x)):
+        """
+            Set the training and test data here.
+
+            Does equal number of signal and background distributions, based on nloops.
+
+            Randomly samples from list of distributions.
+
+            Distributions must be a list of type Distribution.
+        """
+        try:
+            from tqdm import tqdm
+            iter = tqdm(range(nloops))
+        except:
+            iter = range(nloops)
+            
+        # list of data + labels
+        data = []
+        for _ in iter:
+            nentries = random.randrange(statsrange[0], statsrange[1])
+
+            distindx = random.randrange(0, len(signaldistributions))
+            signaldistributions[distindx].sample(nentries=nentries).normalise(op=normfunc)
+            data.append((signaldistributions[distindx].values, 1))
+
+            distindx = random.randrange(0, len(backdistributions))
+            backdistributions[distindx].sample(nentries=nentries).normalise(op=normfunc)
+            data.append((backdistributions[distindx].values, 0))
+
+        # split based on trainingratio
+        ntraining = math.floor(len(data)*trainingratio)
+        ntest = len(data) - ntraining
+
+        self.test_labels = np.array([l for _, l in data[:ntest]])
+        self.test_data = np.array([d for d, _ in data[:ntest]])
+
+        self.training_labels = np.array([l for _, l in data[ntest:]])
+        self.training_data = np.array([d for d, _ in data[ntest:]])
+        return self
+
+class DistributionMultiLabelClassifier(DistributionClassifier):
+    """
+        Use a simple NN to identify a distribution label
+    """
+    def __init__(self, *args, nlabels=2, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._model = keras.models.Sequential([
+            keras.layers.Flatten(input_shape=(self._nbins,)),
+            keras.layers.Dense(1024, activation=tf.nn.relu),
+            keras.layers.Dense(1024, activation=tf.nn.relu),
+            keras.layers.Dense(nlabels, activation=tf.nn.softmax)
+        ])
+
+        self._model.compile(optimizer='adam', 
+            loss='sparse_categorical_crossentropy',
+            metrics=['accuracy'])
+
+    def generatedata(self, distributions, labels, nloops=1000, 
+        statsrange=[10, 1000], trainingratio=0.9, normfunc=lambda x: x/sum(x)):
+        """
+            Set the training and test data here.
+
+            Does equal number of signal and background distributions, based on nloops.
+
+            Randomly samples from list of distributions.
+
+            Distributions must be a list of type Distribution.
+        """
+        assert len(distributions) == len(labels)
+
+        try:
+            from tqdm import tqdm
+            iter = tqdm(range(nloops))
+        except:
+            iter = range(nloops)
+            
+        # list of data + labels
+        data = []
+        for _ in iter:
+            nentries = random.randrange(statsrange[0], statsrange[1])
+
+            distindx = random.randrange(0, len(distributions))
+            distributions[distindx].sample(nentries=nentries).normalise(op=normfunc)
+            data.append((distributions[distindx].values, labels[distindx]))
+
+        # split based on trainingratio
+        ntraining = math.floor(len(data)*trainingratio)
+        ntest = len(data) - ntraining
+
+        self.test_labels = np.array([l for _, l in data[:ntest]])
+        self.test_data = np.array([d for d, _ in data[:ntest]])
+
+        self.training_labels = np.array([l for _, l in data[ntest:]])
+        self.training_data = np.array([d for d, _ in data[ntest:]])
+        return self

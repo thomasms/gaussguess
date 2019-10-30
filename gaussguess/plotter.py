@@ -13,12 +13,14 @@ def getplotxy(generator):
 
     return x, y
 
-def histplot(generator):
+def histplot(generator, *args, fig=None, **kwargs):
     # plot data to look like hist but actuall line plot
     x, y = getplotxy(generator)
 
-    f = plt.figure()
-    plt.plot(x, y, 'k', alpha=0.6)
+    if not fig:
+        _ = plt.figure()
+
+    plt.plot(x, y, *args, **kwargs)
     # plt.plot(*generator.analytical, 'r', alpha=0.4)
     # plt.xlim(generator.limits)
     # plt.ylim([0,1.05])
