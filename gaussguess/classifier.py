@@ -19,7 +19,7 @@ class LossAndAccuracyCallback(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         self.epochs.append(epoch)
         self.loss.append(logs['loss'])
-        self.accuracy.append(logs['accuracy'])
+        self.accuracy.append(logs['acc'])
 
 class Classifier(object):
     """
