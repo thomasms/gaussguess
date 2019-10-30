@@ -1,6 +1,6 @@
 import gaussguess as gg
 
-NBINS = 21
+NBINS = 9
 
 signaldists = [
     gg.GaussDistribution(NBINS, sigma=0.05),

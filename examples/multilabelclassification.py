@@ -2,10 +2,10 @@ import gaussguess as gg
 
 NBINS = 9
 
-labels = ["gauss", "uniform", "triangular", "laplace", "poisson"]
-ilabels = range(len(labels))
+classes = ["gauss", "uniform", "triangular", "laplace", "poisson"]
+iclasses = range(len(classes))
 
-getlabel = lambda name: ilabels[labels.index(name)]
+getlabel = lambda name: iclasses[classes.index(name)]
 labeled_data = [
     (getlabel("gauss"), gg.GaussDistribution(NBINS, sigma=0.05)),
     (getlabel("gauss"), gg.GaussDistribution(NBINS, sigma=0.10)),
@@ -32,7 +32,7 @@ labeled_data = [
 
 labels, dists = map(list, zip(*labeled_data))
 
-classifier = gg.DistributionMultiLabelClassifier(NBINS, nlabels=len(labels))
+classifier = gg.DistributionMultiLabelClassifier(NBINS, nlabels=len(classes))
 classifier.generatedata(dists, labels, nloops=50000, statsrange=[100, 10000], trainingratio=0.8)
 cb = gg.LossAndAccuracyCallback()
 test_loss, test_acc = classifier.train(epochs=20, callbacks=[cb])

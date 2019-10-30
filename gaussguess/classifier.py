@@ -72,7 +72,7 @@ class DistributionClassifier(object):
         """
             Expects a distribution of type Distribution
         """
-        values = distribution.normalise().values
+        values = distribution.values
         assert len(values) == self._nbins
         return self._model.predict(values.reshape((1, self._nbins)))[0]
         
