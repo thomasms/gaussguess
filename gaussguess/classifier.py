@@ -4,6 +4,22 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
+from .distribution import Distribution
+
+class LossAndAccuracyCallback(keras.callbacks.Callback):
+
+    def __init__(self):
+        super(LossAndAccuracyCallback, self).__init__()
+
+        # best_weights to store the weights at which the minimum loss occurs.
+        self.epochs = []
+        self.loss = []
+        self.accuracy = []
+
+    def on_epoch_end(self, epoch, logs=None):
+        self.epochs.append(epoch)
+        self.loss.append(logs['loss'])
+        self.accuracy.append(logs['accuracy'])
 
 class Classifier(object):
     """
@@ -97,10 +113,11 @@ class Classifier(object):
         test_loss, test_acc = self._model.evaluate(self.test_data, self.test_labels)
         return test_loss, test_acc
 
-    def predict(self, values):
+    def predict(self, distribution):
         """
             Expects an array of values of size equal to nbins
         """
+        values = distribution.values
         assert len(values) == self._nbins
-        return self._model.predict(values)[0]
+        return self._model.predict(values.reshape((1, self._nbins)))[0]
         
