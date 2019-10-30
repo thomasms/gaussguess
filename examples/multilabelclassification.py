@@ -1,6 +1,6 @@
 import gaussguess as gg
 
-NBINS = 9
+NBINS = 111
 
 classes = ["gauss", "uniform", "triangular", "laplace", "poisson"]
 iclasses = range(len(classes))
@@ -22,6 +22,7 @@ labeled_data = [
     (getlabel("uniform"), gg.UniformDistribution(NBINS)),
     (getlabel("triangular"), gg.TriangularDistribution(NBINS, center=0.1)),
     (getlabel("triangular"), gg.TriangularDistribution(NBINS, center=0.2)),
+    (getlabel("triangular"), gg.TriangularDistribution(NBINS, center=0.5)),
     (getlabel("triangular"), gg.TriangularDistribution(NBINS, center=0.6)),
     (getlabel("triangular"), gg.TriangularDistribution(NBINS, center=0.99)),
     (getlabel("triangular"), gg.TriangularDistribution(NBINS, center=0.4)),

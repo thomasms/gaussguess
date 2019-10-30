@@ -1,6 +1,6 @@
 import gaussguess as gg
 
-NBINS = 9
+NBINS = 21
 
 signaldists = [
     gg.GaussDistribution(NBINS, sigma=0.05),
@@ -26,7 +26,7 @@ backgrounddists = [
 ]
 
 classifier = gg.DistributionBinaryClassifier(NBINS)
-classifier.generatedata(signaldists, backgrounddists, nloops=50000, statsrange=[10, 1000], trainingratio=0.8)
+classifier.generatedata(signaldists, backgrounddists, nloops=50000, statsrange=[10, 10000], trainingratio=0.8)
 cb = gg.LossAndAccuracyCallback()
 test_loss, test_acc = classifier.train(epochs=20, callbacks=[cb])
 # print(cb.epochs, cb.accuracy)
